@@ -11,12 +11,12 @@ namespace TasksManagerAPI.Data
         }
 
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<Project> Projects { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            var encryptedPassword = CryptographyService.EncryptPassword("prueba");
 
             modelBuilder.Entity<Account>().HasData(
                 new Account
@@ -24,7 +24,14 @@ namespace TasksManagerAPI.Data
                     Id = 1,
                     Email = "admin@gmail.com",
                     Username = "Test",
-                    PasswordHash = encryptedPassword
+                    PasswordHash = "pruebaharcord"
+                }
+            );
+            modelBuilder.Entity<Project>().HasData(
+                new Project
+                {
+                    Id = 1,
+                    Name = "Test",
                 }
             );
         }
