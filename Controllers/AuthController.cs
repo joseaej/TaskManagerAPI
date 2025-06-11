@@ -6,7 +6,7 @@ using TasksManagerAPI.Services;
 
 namespace TasksManagerAPI.Controllers
 {
-
+    /*
     [Route("/api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -28,5 +28,5 @@ namespace TasksManagerAPI.Controllers
             }
             return result;
         }
-    }
+    }*/
 }
