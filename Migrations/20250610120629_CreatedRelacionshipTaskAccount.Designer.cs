@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TasksManagerAPI.Data;
 
@@ -11,9 +12,11 @@ using TasksManagerAPI.Data;
 namespace TasksManagerAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250610120629_CreatedRelacionshipTaskAccount")]
+    partial class CreatedRelacionshipTaskAccount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace TasksManagerAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("AccountTaskEntity", b =>
+                {
+                    b.Property<int>("AccountsUsernameId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TasksId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AccountsUsernameId", "TasksId");
+
+                    b.HasIndex("TasksId");
+
+                    b.ToTable("AccountTaskEntity");
+                });
 
             modelBuilder.Entity("TasksManagerAPI.Models.Entity.Account", b =>
                 {
@@ -38,16 +56,11 @@ namespace TasksManagerAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TaskEntityId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TaskEntityId");
 
                     b.ToTable("Accounts");
                 });
@@ -98,11 +111,19 @@ namespace TasksManagerAPI.Migrations
                     b.ToTable("TasksEntity");
                 });
 
-            modelBuilder.Entity("TasksManagerAPI.Models.Entity.Account", b =>
+            modelBuilder.Entity("AccountTaskEntity", b =>
                 {
+                    b.HasOne("TasksManagerAPI.Models.Entity.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountsUsernameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("TasksManagerAPI.Models.Entity.TaskEntity", null)
-                        .WithMany("AccountsUsername")
-                        .HasForeignKey("TaskEntityId");
+                        .WithMany()
+                        .HasForeignKey("TasksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TasksManagerAPI.Models.Entity.TaskEntity", b =>
@@ -112,11 +133,6 @@ namespace TasksManagerAPI.Migrations
                         .HasForeignKey("ProjectId");
 
                     b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("TasksManagerAPI.Models.Entity.TaskEntity", b =>
-                {
-                    b.Navigation("AccountsUsername");
                 });
 #pragma warning restore 612, 618
         }

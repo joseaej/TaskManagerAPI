@@ -38,7 +38,7 @@ namespace TasksManagerAPI.Controllers
 
 
         [HttpPut]
-        public async Task<ActionResult> UpdatedProject([FromForm] Project project,int id)
+        public async Task<ActionResult> UpdatedProject([FromBody] Project project,int id)
         {
             if (project is null || string.IsNullOrWhiteSpace(project.Name)) return BadRequest();
 

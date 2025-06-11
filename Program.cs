@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TaskFlowAPI.Services;
+using TasksManagerAPI.Controllers;
 using TasksManagerAPI.Data;
 using TasksManagerAPI.Services;
 
@@ -41,6 +42,9 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+
+
 
 
 builder.Services.AddAuthentication(options =>
@@ -86,6 +90,26 @@ app.UseAuthentication();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+    var code = response.StatusCode;
+
+    if (response.HasStarted)
+        return;
+
+    response.ContentType = "application/json";
+
+    var message = code switch
+    {
+        401 => "You are not authorised to access this resource.",
+        404 => "The requested resource was not found.",
+        _ => "Error"
+    };
+
+    var errorResponse = new { status = code, error = message };
+    await response.WriteAsJsonAsync(errorResponse);
+});
 
 app.MapControllers();
 

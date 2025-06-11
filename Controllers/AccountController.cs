@@ -3,20 +3,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskFlowAPI.Services;
 using TasksManagerAPI.Data;
+using TasksManagerAPI.Models.Api;
 using TasksManagerAPI.Models.Entity;
+using TasksManagerAPI.Services;
 
 namespace TasksManagerAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class AccountController : ControllerBase
     {
         private readonly AppDbContext _dbContext;
+        private readonly JwtService _jwtService;
 
-        public AccountController(AppDbContext dbContext)
+        public AccountController(AppDbContext dbContext, JwtService jwtService)
         {
             _dbContext = dbContext;
+            _jwtService = jwtService;
         }
         // GET: api/Account/5
         [HttpGet("{id:int}")]
@@ -32,7 +35,7 @@ namespace TasksManagerAPI.Controllers
 
         // POST: api/Account
         [HttpPost]
-        public async Task<ActionResult<Account>> CreateAccount([FromBody] Account account)
+        public async Task<ActionResult<TokenResponseModel>> CreateAccount([FromBody] Account account)
         {
             if (account is null ||
                 string.IsNullOrWhiteSpace(account.Email) ||
@@ -46,8 +49,9 @@ namespace TasksManagerAPI.Controllers
 
             await _dbContext.Accounts.AddAsync(account);
             await _dbContext.SaveChangesAsync();
+            CreatedAtAction(nameof(GetAccountById), new { id = account.Id }, account);
 
-            return CreatedAtAction(nameof(GetAccountById), new { id = account.Id }, account);
+            return (await GetAccessToken(new AccesTokenModel(account.Username,account.PasswordHash)));
         }
 
         // PUT: api/Account/5
@@ -75,6 +79,18 @@ namespace TasksManagerAPI.Controllers
             await _dbContext.SaveChangesAsync();
 
             return NoContent();
+        }
+
+
+        [NonAction]
+        private async Task<ActionResult<TokenResponseModel>> GetAccessToken(AccesTokenModel request)
+        {
+            var result = await _jwtService.Autenticate(request);
+            if (result is null)
+            {
+                return Unauthorized();
+            }
+            return result;
         }
     }
 }

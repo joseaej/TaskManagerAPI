@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TasksManagerAPI.Data;
 
@@ -11,9 +12,11 @@ using TasksManagerAPI.Data;
 namespace TasksManagerAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250606103757_CreatedTask")]
+    partial class CreatedTask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,7 +41,7 @@ namespace TasksManagerAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TaskEntityId")
+                    b.Property<int?>("TasksId")
                         .HasColumnType("int");
 
                     b.Property<string>("Username")
@@ -47,7 +50,7 @@ namespace TasksManagerAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TaskEntityId");
+                    b.HasIndex("TasksId");
 
                     b.ToTable("Accounts");
                 });
@@ -69,7 +72,7 @@ namespace TasksManagerAPI.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("TasksManagerAPI.Models.Entity.TaskEntity", b =>
+            modelBuilder.Entity("TasksManagerAPI.Models.Entity.Tasks", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,7 +86,7 @@ namespace TasksManagerAPI.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ProjectId")
+                    b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
                     b.Property<string>("TaskName")
@@ -95,26 +98,28 @@ namespace TasksManagerAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("TasksEntity");
+                    b.ToTable("Task");
                 });
 
             modelBuilder.Entity("TasksManagerAPI.Models.Entity.Account", b =>
                 {
-                    b.HasOne("TasksManagerAPI.Models.Entity.TaskEntity", null)
+                    b.HasOne("TasksManagerAPI.Models.Entity.Tasks", null)
                         .WithMany("AccountsUsername")
-                        .HasForeignKey("TaskEntityId");
+                        .HasForeignKey("TasksId");
                 });
 
-            modelBuilder.Entity("TasksManagerAPI.Models.Entity.TaskEntity", b =>
+            modelBuilder.Entity("TasksManagerAPI.Models.Entity.Tasks", b =>
                 {
                     b.HasOne("TasksManagerAPI.Models.Entity.Project", "Project")
                         .WithMany()
-                        .HasForeignKey("ProjectId");
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("TasksManagerAPI.Models.Entity.TaskEntity", b =>
+            modelBuilder.Entity("TasksManagerAPI.Models.Entity.Tasks", b =>
                 {
                     b.Navigation("AccountsUsername");
                 });
